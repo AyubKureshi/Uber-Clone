@@ -178,3 +178,143 @@ curl -X POST http://localhost:3000/users/login \
 - The returned token should be included in subsequent requests for authentication.
 - The login endpoint compares passwords securely using hashing comparison.
 - Adjust the host/port in the sample curl to match your server configuration.
+
+---
+
+## Users Profile Endpoint
+
+### Endpoint
+
+- **URL:** `/users/profile`
+- **Method:** `GET`
+
+### Description
+
+Retrieves the authenticated user's profile information. Requires a valid authentication token.
+
+### Authentication
+
+This endpoint requires authentication. Include the auth token in the request header:
+
+```
+Authorization: Bearer <token>
+```
+
+Or as a cookie:
+
+```
+Cookie: token=<token>
+```
+
+### Request
+
+No request body required.
+
+### Error Responses
+
+#### 401 Unauthorized
+
+If no valid token is provided or token has expired:
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+  "message": "Unauthorized"
+}
+```
+
+### Success Response
+
+- **Status:** `200 OK`
+- **Body:** JSON containing the authenticated user's profile data.
+
+Example success response:
+
+```json
+HTTP/1.1 200 OK
+{
+  "_id": "<userId>",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "email": "jane.doe@example.com"
+}
+```
+
+### Sample curl
+
+```bash
+curl -X GET http://localhost:3000/users/profile \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## Users Logout Endpoint
+
+### Endpoint
+
+- **URL:** `/users/logout`
+- **Method:** `GET`
+
+### Description
+
+Logs out the authenticated user by clearing the session token and blacklisting it. Requires a valid authentication token.
+
+### Authentication
+
+This endpoint requires authentication. Include the auth token in the request header:
+
+```
+Authorization: Bearer <token>
+```
+
+Or as a cookie:
+
+```
+Cookie: token=<token>
+```
+
+### Request
+
+No request body required.
+
+### Error Responses
+
+#### 401 Unauthorized
+
+If no valid token is provided or token has expired:
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+  "message": "Unauthorized"
+}
+```
+
+### Success Response
+
+- **Status:** `200 OK`
+- **Body:** JSON confirmation message.
+
+Example success response:
+
+```json
+HTTP/1.1 200 OK
+{
+  "message": "Logged out"
+}
+```
+
+### Sample curl
+
+```bash
+curl -X GET http://localhost:3000/users/logout \
+  -H "Authorization: Bearer <token>"
+```
+
+### Notes
+
+- The token is added to a blacklist to prevent reuse after logout.
+- The token cookie is cleared from the client.
+- The user will need to login again to access protected endpoints.
+- Adjust the host/port in the sample curl to match your server configuration.
