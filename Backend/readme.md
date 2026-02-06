@@ -318,3 +318,123 @@ curl -X GET http://localhost:3000/users/logout \
 - The token cookie is cleared from the client.
 - The user will need to login again to access protected endpoints.
 - Adjust the host/port in the sample curl to match your server configuration.
+
+---
+
+## Captains Register Endpoint
+
+### Endpoint
+
+- **URL:** `/captains/register`
+- **Method:** `POST`
+
+### Description
+
+Registers a new captain with vehicle information. Validates input, hashes the password, creates the captain record with vehicle details, and returns the created captain object plus an auth token.
+
+### Request Body
+
+Content-Type: `application/json`
+
+Required JSON body fields:
+
+- `email` (string) — must be a valid email address.
+- `fullName` (object)
+  - `firstName` (string) — required, minimum 3 characters.
+  - `lastName` (string) — optional.
+- `password` (string) — required, minimum 8 characters.
+- `vehicle` (object)
+  - `color` (string) — required, minimum 3 characters.
+  - `plate` (string) — required, minimum 10 characters.
+  - `capacity` (number) — required, minimum value 1.
+  - `vehicleType` (string) — required, must be one of: `'bike'`, `'car'`, `'auto'`.
+
+Example:
+
+```json
+{
+  "email": "captain.john@example.com",
+  "fullName": {
+    "firstName": "John",
+    "lastName": "Driver"
+  },
+  "password": "securepassword123",
+  "vehicle": {
+    "color": "black",
+    "plate": "DL012AB3456",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Validation & Errors
+
+#### 400 Bad Request
+
+If validation fails (missing/invalid fields):
+
+Example error response:
+
+```json
+HTTP/1.1 400 Bad Request
+{
+  "errors": [
+    { "msg": "Invalid Email", "param": "email", "location": "body" },
+    { "msg": "First name mnust be atleat 3 character long", "param": "fullName.firstName", "location": "body" },
+    { "msg": "Invalid vehicle type", "param": "vehicle.vehicleType", "location": "body" }
+  ]
+}
+```
+
+#### 400 Duplicate Email
+
+If a captain with the same email already exists:
+
+```json
+HTTP/1.1 400 Bad Request
+{
+  "message": "Captain already exist"
+}
+```
+
+### Success Response
+
+- **Status:** `201 Created`
+- **Body:** JSON containing the created `captain` object and an authentication `token`.
+
+Example success response:
+
+```json
+HTTP/1.1 201 Created
+{
+  "captain": {
+    "_id": "<captainId>",
+    "firstName": "John",
+    "lastName": "Driver",
+    "email": "captain.john@example.com",
+    "vehicle": {
+      "color": "black",
+      "plate": "DL012AB3456",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "token": "<jwt-token>"
+}
+```
+
+### Sample curl
+
+```bash
+curl -X POST http://localhost:3000/captains/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"captain.john@example.com","fullName":{"firstName":"John","lastName":"Driver"},"password":"securepassword123","vehicle":{"color":"black","plate":"DL012AB3456","capacity":4,"vehicleType":"car"}}'
+```
+
+### Notes
+
+- Passwords are hashed before storing.
+- Vehicle type must be exactly one of: `bike`, `car`, or `auto`.
+- Email must be unique; duplicate registrations will be rejected.
+- Adjust the host/port in the sample curl to match your server configuration.
