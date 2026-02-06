@@ -85,6 +85,246 @@ curl -X POST http://localhost:3000/users/register \
 
 ---
 
+## Captains Login Endpoint
+
+### Endpoint
+
+- **URL:** `/captains/login`
+- **Method:** `POST`
+
+### Description
+
+Authenticates a captain using email and password. Returns the captain object and an auth token on success.
+
+### Request Body
+
+Content-Type: `application/json`
+
+Required JSON body fields:
+
+- `email` (string) — must be a valid email address.
+- `password` (string) — required, minimum 8 characters.
+
+Example:
+
+```json
+{
+  "email": "captain.john@example.com",
+  "password": "securepassword123"
+}
+```
+
+### Validation & Errors
+
+#### 400 Bad Request
+
+If validation fails (missing/invalid fields), returns `400 Bad Request` with validation errors.
+
+Example error response:
+
+```json
+HTTP/1.1 400 Bad Request
+{
+  "errors": [
+    { "msg": "Invalid Email", "param": "email", "location": "body" },
+    { "msg": "Password must be atleast 8 character long", "param": "password", "location": "body" }
+  ]
+}
+```
+
+#### 401 Unauthorized
+
+If captain is not found or password does not match, returns `401 Unauthorized`:
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+  "message": "Invalid email or password"
+}
+```
+
+### Success Response
+
+- **Status:** `200 OK`
+- **Body:** JSON containing the authenticated `captain` object and an authentication `token`.
+
+Example success response:
+
+```json
+HTTP/1.1 200 OK
+{
+  "captain": {
+    "_id": "<captainId>",
+    "firstName": "John",
+    "lastName": "Driver",
+    "email": "captain.john@example.com",
+    "vehicle": {
+      "color": "black",
+      "plate": "DL012AB3456",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "token": "<jwt-token>"
+}
+```
+
+### Sample curl
+
+```bash
+curl -X POST http://localhost:3000/captains/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"captain.john@example.com","password":"securepassword123"}'
+```
+
+---
+
+## Captains Profile Endpoint
+
+### Endpoint
+
+- **URL:** `/captains/profile`
+- **Method:** `GET`
+
+### Description
+
+Retrieves the authenticated captain's profile information. Requires a valid authentication token.
+
+### Authentication
+
+This endpoint requires authentication. Include the auth token in the request header:
+
+```
+Authorization: Bearer <token>
+```
+
+Or as a cookie:
+
+```
+Cookie: token=<token>
+```
+
+### Request
+
+No request body required.
+
+### Error Responses
+
+#### 401 Unauthorized
+
+If no valid token is provided or token has expired:
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+  "message": "Unauthorized"
+}
+```
+
+### Success Response
+
+- **Status:** `200 OK`
+- **Body:** JSON containing the authenticated captain's profile data.
+
+Example success response:
+
+```json
+HTTP/1.1 200 OK
+{
+  "_id": "<captainId>",
+  "firstName": "John",
+  "lastName": "Driver",
+  "email": "captain.john@example.com",
+  "vehicle": {
+    "color": "black",
+    "plate": "DL012AB3456",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Sample curl
+
+```bash
+curl -X GET http://localhost:3000/captains/profile \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## Captains Logout Endpoint
+
+### Endpoint
+
+- **URL:** `/captains/logout`
+- **Method:** `GET`
+
+### Description
+
+Logs out the authenticated captain by clearing the session token and blacklisting it. Requires a valid authentication token.
+
+### Authentication
+
+This endpoint requires authentication. Include the auth token in the request header:
+
+```
+Authorization: Bearer <token>
+```
+
+Or as a cookie:
+
+```
+Cookie: token=<token>
+```
+
+### Request
+
+No request body required.
+
+### Error Responses
+
+#### 401 Unauthorized
+
+If no valid token is provided or token has expired:
+
+```json
+HTTP/1.1 401 Unauthorized
+{
+  "message": "Unauthorized"
+}
+```
+
+### Success Response
+
+- **Status:** `200 OK`
+- **Body:** JSON confirmation message.
+
+Example success response:
+
+```json
+HTTP/1.1 200 OK
+{
+  "message": "Logged out"
+}
+```
+
+### Sample curl
+
+```bash
+curl -X GET http://localhost:3000/captains/logout \
+  -H "Authorization: Bearer <token>"
+```
+
+### Notes
+
+- The token may be added to a blacklist to prevent reuse after logout.
+- The token cookie is cleared from the client.
+- The captain will need to login again to access protected endpoints.
+- Adjust the host/port in the sample curl to match your server configuration.
+
+---
+
 ## Users Login Endpoint
 
 ### Endpoint
